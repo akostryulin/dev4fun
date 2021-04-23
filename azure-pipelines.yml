@@ -30,12 +30,14 @@ steps:
 - script: ls
   displayName: 'Azure Folder'
 
+- script: git diff 8a400ce 5c090c4 --name-only
+  displayName: 'Diff between commits'
 # Login to the target org
 - script: sfdx force:auth:jwt:grant -u $(USERNAME) -f $(key.secureFilePath) -i $(CONSUMER_ID) -r $(INSTANCE_URL)
   displayName: 'Authenticating'
 
 - script: sfdx force:source:convert --rootdir force-app --outputdir tmp_convert
-  displayName: 'Conver source'
+  displayName: 'Convert source'
 
 - script: zip -r winter19.zip tmp_convert
   displayName: 'Zip source'
