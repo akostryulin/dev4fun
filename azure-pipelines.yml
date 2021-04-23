@@ -1,19 +1,49 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+# Deploys Metadata from a branch to a target org
+# Variables required in Build Definition:
+  # USERNAME : e.g. link_of_hylia@hyrulecastle.co.uk
+  # CONSUMER_ID : This is the connected app client Id. Used in a JWT Auth
+  # INSTANCE_URL : e.g. https://test.salesforce.com
+# Authored by Adam Walker, Hyrule Consulting
 
-trigger:
-- master
+# I only want to trigger manually, so I set it to none.
+trigger: none
 
+# Running this from a linux-based machine, MS Hosted. Simples!
 pool:
-  vmImage: ubuntu-latest
+  name: 'Ubuntu-Latest'
 
+# Here are my steps, note that I first need to checkout
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+- checkout: self
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+# I used DX CLI to deploy, so the machine needs to have it installed
+- script: npm install sfdx-cli --global
+  displayName: 'Installing SFDX'
+
+# The Authentication is via JWT. So you need a the private key of the certificate used.
+- task: DownloadSecureFile@1
+  name: key
+  inputs:
+    secureFile: 'server.key'
+    retryCount: '5'
+  
+# Login to the target org
+- script: sfdx force:auth:jwt:grant -u $(USERNAME) -f $(key.secureFilePath) -i $(CONSUMER_ID) -r $(INSTANCE_URL)
+  displayName: 'Authenticating'
+
+# Submit the deployment to the target
+# the src folder contains all of the metadata
+# make sure you have a package.xml in there too though!
+- script: sfdx force:mdapi:deploy -d src -l RunLocalTests -u $(USERNAME)
+  displayName: 'Submit Deployment'
+
+# Monitors the deployment through the DX CLI
+# If you don't specify a job Id, it just uses the latest deployment. Neat!
+- script: sfdx force:mdapi:deploy:report --wait=-1 -u $(USERNAME)
+  displayName: 'Monitor Deployment'
+
+# If the build gets canceled for any reason, I want to cancel the actual deployment too!
+# By adding a condition here means this step always run when the build is canceled
+- script: sfdx force:mdapi:deploy:cancel -u $(USERNAME)
+  condition: canceled()
+  displayName: 'Aborting Deployment'
