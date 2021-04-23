@@ -6,7 +6,9 @@
 # Authored by Adam Walker, Hyrule Consulting
 
 # I only want to trigger manually, so I set it to none.
-trigger: none
+# trigger: none
+pr:
+- master
 
 # Running this from a linux-based machine, MS Hosted. Simples!
 #pool:
