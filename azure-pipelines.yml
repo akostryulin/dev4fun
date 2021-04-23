@@ -34,11 +34,20 @@ steps:
 - script: sfdx force:auth:jwt:grant -u $(USERNAME) -f $(key.secureFilePath) -i $(CONSUMER_ID) -r $(INSTANCE_URL)
   displayName: 'Authenticating'
 
+- script: sfdx force:source:convert --rootdir force-app --outputdir tmp_convert
+  displayName: 'Conver source'
+
+- script: zip -r winter19.zip tmp_convert
+  displayName: 'Zip source'
+
+- script: sfdx force:mdapi:deploy --zipfile winter19.zip --targetusername $(USERNAME)
+  displayName: 'Deploy code'
+  
 # Submit the deployment to the target
 # the src folder contains all of the metadata
 # make sure you have a package.xml in there too though!
-- script: sfdx force:mdapi:deploy -d src -l RunLocalTests -u $(USERNAME)
-  displayName: 'Submit Deployment'
+#- script: sfdx force:mdapi:deploy -d src -l RunLocalTests -u $(USERNAME)
+#  displayName: 'Submit Deployment'
 
 # Monitors the deployment through the DX CLI
 # If you don't specify a job Id, it just uses the latest deployment. Neat!
