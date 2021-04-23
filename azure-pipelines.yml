@@ -18,6 +18,9 @@ pr:
 steps:
 - checkout: self
 
+- script: echo $(Build.SourceBranchName) | echo $(System.PullRequest.SourceBranch) | echo $(System.PullRequest.TargetBranch)
+  displayName: 'Some vars'
+
 # I used DX CLI to deploy, so the machine needs to have it installed
 - script: sudo npm install sfdx-cli --global
   displayName: 'Installing SFDX'
