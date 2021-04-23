@@ -9,8 +9,8 @@
 trigger: none
 
 # Running this from a linux-based machine, MS Hosted. Simples!
-pool:
-  name: 'Ubuntu-Latest'
+#pool:
+#  name: 'Ubuntu-Latest'
 
 # Here are my steps, note that I first need to checkout
 steps:
