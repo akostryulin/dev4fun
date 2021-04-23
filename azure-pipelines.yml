@@ -26,7 +26,10 @@ steps:
   inputs:
     secureFile: 'server.key'
     retryCount: '5'
-  
+
+- script: ls
+  displayName: 'Azure Folder'
+
 # Login to the target org
 - script: sfdx force:auth:jwt:grant -u $(USERNAME) -f $(key.secureFilePath) -i $(CONSUMER_ID) -r $(INSTANCE_URL)
   displayName: 'Authenticating'
